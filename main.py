@@ -23,6 +23,12 @@ def main():
     if os.path.getsize(DST) != os.path.getsize(SRC):
         raise SystemExit("output size mismatch: wrote %d bytes, expected %d"
                          % (os.path.getsize(DST), os.path.getsize(SRC)))
+    # Self-check: the output must start with the PNG signature, so a
+    # truncated or half-written copy can never pass as the entry.
+    with open(DST, "rb") as fh:
+        magic = fh.read(8)
+    if magic != b"\x89PNG\r\n\x1a\n":
+        raise SystemExit("output does not start with the PNG signature")
     print("Wrote %s (%d bytes)" % (DST, os.path.getsize(DST)))
 
 
